@@ -13,7 +13,7 @@ import { mockUser1, mockUser2 } from "../config/asset";
 import Card, { cardConfig } from "../components/Card";
 
 import styles from "../styles/Home.module.css";
-import { khartes } from '../config/chains';
+import { khartes, mantaTest } from '../config/chains';
 
 export default function Home() {
   const { connect, connectors } = useConnect();
@@ -28,7 +28,7 @@ export default function Home() {
 
   const { zkShuffle, isLoaded } = useContext(ZKShuffleContext);
   const { switchNetwork } = useSwitchNetwork({
-    chainId: khartes.id,
+    chainId: mantaTest.id,
   });
 
   const {
@@ -84,11 +84,11 @@ export default function Home() {
     );
   }
 
-  if (chain?.id !== khartes.id) {
+  if (chain?.id !== khartes.id && chain?.id !== mantaTest.id) {
     return (
       <div className=" flex flex-col gap-10  h-screen items-center justify-center  text-2xl font-medium bg-slate-900 ">
         <div className="text-2xl font-medium">
-          Only support khartes test network now
+          Only support khartes test and manta test network now
         </div>
         <div
           onClick={() => {

@@ -156,24 +156,20 @@ export class ZKShuffle implements IZKShuffle {
     return (await this.smc.getPlayerIdx(gameId, address)).toNumber();
   }
 
-  async checkTurn(gameId: number, startBlock: any = 0): Promise<GameTurn> {
-    debugger;
-    if (startBlock == undefined || startBlock == 0) {
-      startBlock = this.nextBlockPerGame.get(gameId);
-      if (startBlock == undefined) {
-        startBlock = 0;
-      }
+  async checkTurn(gameId: number, initStartBlock: any): Promise<GameTurn> {
+    let startBlock = this.nextBlockPerGame.get(gameId);
+    if (startBlock == undefined) {
+      startBlock = initStartBlock;
     }
 
-    let filter = this.smc.filters.PlayerTurn(null, null, null);
+    const playerId = await this.getPlayerId(gameId);
+    let filter = this.smc.filters.PlayerTurn(gameId, null, null);
     let events = await this.smc.queryFilter(filter, startBlock);
     for (let i = 0; i < events.length; i++) {
       const e = events[i];
       startBlock = e.blockNumber + 1; // TODO : probably missing event in same block
-      const playerId = await this.getPlayerId(gameId);
 
       if (
-        e?.args?.gameId.toNumber() != gameId ||
         e?.args?.playerIndex.toNumber() != playerId
       ) {
         continue;
@@ -182,14 +178,19 @@ export class ZKShuffle implements IZKShuffle {
       this.nextBlockPerGame.set(gameId, startBlock);
       switch (e.args.state) {
         case BaseState.Shuffle:
+          this.nextBlockPerGame.set(gameId, startBlock);
           return GameTurn.Shuffle;
         case BaseState.Deal:
+          this.nextBlockPerGame.set(gameId, startBlock);
           return GameTurn.Deal;
         case BaseState.Open:
+          this.nextBlockPerGame.set(gameId, startBlock);
           return GameTurn.Open;
         case BaseState.Complete:
+          this.nextBlockPerGame.set(gameId, startBlock);
           return GameTurn.Complete;
         case BaseState.GameError:
+          this.nextBlockPerGame.set(gameId, startBlock);
           return GameTurn.Error;
         default:
           console.log("err state ", e.args.state);
@@ -197,7 +198,6 @@ export class ZKShuffle implements IZKShuffle {
       }
     }
 
-    this.nextBlockPerGame.set(gameId, startBlock);
     return GameTurn.NOP;
   }
 

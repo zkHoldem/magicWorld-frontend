@@ -29,7 +29,7 @@ export enum Turn {
   Joiner,
 }
 
-export const BLOCK_INTERVAL = 150;
+export const BLOCK_INTERVAL = 30;
 
 function useGame(creator: string, joiner: string, address: string) {
   const { mw } = useContracts();
@@ -323,9 +323,9 @@ function useGame(creator: string, joiner: string, address: string) {
       setInterval(async () => {
         // console.log('blockNumber', blockNumber);
         const startBlock = (await provider.getBlockNumber()) - BLOCK_INTERVAL;
-
+        const playerId = await zkShuffle.getPlayerId(creatorShuffleId);
         const res = await zkShuffle.checkTurn(creatorShuffleId, startBlock);
-        console.log('first deck checkTurn', res);
+        console.log(`creator deck turn ${res}, start ${startBlock}, gameID ${creatorShuffleId}, playerId ${playerId}`);
         if (res !== GameTurn.NOP) {
           setCreatorShuffleStatus(res);
         }
@@ -337,8 +337,9 @@ function useGame(creator: string, joiner: string, address: string) {
     if (joinerShuffleId) {
       setInterval(async () => {
         const startBlock = (await provider.getBlockNumber()) - BLOCK_INTERVAL;
+        const playerId = await zkShuffle.getPlayerId(creatorShuffleId);
         const res = await zkShuffle.checkTurn(joinerShuffleId, startBlock);
-        console.log('second deck checkTurn', res);
+        console.log(`joiner deck turn ${res}, start ${startBlock}, gameID ${creatorShuffleId}, playerId ${playerId}`);
         if (res !== GameTurn.NOP) {
           setJoinerShuffleStatus(res);
         }
