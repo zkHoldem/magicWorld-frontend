@@ -1,13 +1,14 @@
-import { useContext, useEffect, useMemo, useState } from "react";
-import cloneDeep from "lodash/cloneDeep";
-import { useProvider } from "wagmi";
-import { GameTurn } from "@zk-shuffle/jssdk";
-
-import { useContracts } from "./useContracts";
-import { UnwrapPromise, ZKShuffleContext } from "../contexts/ZKShuffle";
-import useEvent, { PULL_DATA_TIME } from "./useEvent";
-import { initList, list } from "../components/Card";
-import { useWrites } from "./useWrites";
+import { useContext, useEffect, useMemo, useState } from 'react';
+import cloneDeep from 'lodash/cloneDeep';
+import { useContracts } from './useContracts';
+import { UnwrapPromise } from '../contexts/ZKShuffle';
+import useEvent, { PULL_DATA_TIME } from './useEvent';
+import { useProvider } from 'wagmi';
+import { ZKShuffleContext } from '../contexts/ZKShuffle';
+import { GameTurn } from '../utils/shuffle/zkShuffle';
+import { initList, list } from '../components/Card';
+import { useWrites } from './useWrites';
+import { AnyAaaaRecord } from 'dns';
 
 export enum IGameStatus {
   WAIT_START,
@@ -28,10 +29,10 @@ export enum Turn {
   Joiner,
 }
 
-export const BLOCK_INTERVAL = 10;
+export const BLOCK_INTERVAL = 150;
 
 function useGame(creator: string, joiner: string, address: string) {
-  const { hs } = useContracts();
+  const { mw } = useContracts();
   const provider = useProvider();
   const [gameStatus, setGameStatus] = useState<IGameStatus>(
     IGameStatus.WAIT_START
@@ -44,11 +45,11 @@ function useGame(creator: string, joiner: string, address: string) {
   );
 
   const [gameInfo, setGameInfo] =
-    useState<UnwrapPromise<ReturnType<typeof hs.getGameInfo>>>();
+    useState<UnwrapPromise<ReturnType<typeof mw.getGameInfo>>>();
 
   const [creatorList, setCreatorList] = useState(cloneDeep(list));
   const [joinerList, setJoinerList] = useState(cloneDeep(list));
-  const [winner, setWinner] = useState<string>();
+  const [winner, setWinner] = useState<AnyAaaaRecord>();
   const { zkShuffle } = useContext(ZKShuffleContext);
 
   const {
@@ -62,29 +63,34 @@ function useGame(creator: string, joiner: string, address: string) {
   } = useWrites();
 
   const createGameListener = useEvent({
-    contract: hs,
-    filter: hs?.filters?.CreateGame(null, null, null),
+    contract: mw,
+    filter: mw?.filters?.CreateGame(null, null, null),
     isStop: gameStatus !== IGameStatus.WAIT_START,
+    // isStop: true,
     addressIndex: 2,
     others: {
       creator: creator,
       joiner: joiner,
+      // gameId,
     },
   });
+
   const joinGameListener = useEvent({
-    contract: hs,
-    filter: hs?.filters?.JoinGame(null, null, null),
+    contract: mw,
+    filter: mw?.filters?.JoinGame(null, null, null),
     isStop: gameStatus !== IGameStatus.CREATED,
+    // isStop: true,
     addressIndex: 2,
     others: {
       creator: creator,
       joiner: joiner,
+      // gameId,
     },
   });
 
   const nextPlayerListener = useEvent({
-    contract: hs,
-    filter: hs?.filters?.NextPlayer(null, null, null),
+    contract: mw,
+    filter: mw?.filters?.NextPlayer(null, null, null),
     isStop: gameStatus !== IGameStatus.JOINED,
     // isStop: true,
     addressIndex: 1,
@@ -96,59 +102,67 @@ function useGame(creator: string, joiner: string, address: string) {
   });
 
   const dealEndListener = useEvent({
-    contract: hs,
-    filter: hs?.filters?.DealEnd(null, null, null),
+    contract: mw,
+    filter: mw?.filters?.DealEnd(null, null, null),
     isStop: gameStatus !== IGameStatus.JOINED,
+    // isStop: true,
     addressIndex: 1,
     others: {
       creator: creator,
       joiner: joiner,
+      // gameId,
     },
   });
 
   const chooseCardGameListener = useEvent({
-    contract: hs,
-    filter: hs?.filters?.ChooseCard(null, null, null, null),
+    contract: mw,
+    filter: mw?.filters?.ChooseCard(null, null, null, null),
     isStop:
       gameStatus !== IGameStatus.DRAWED &&
       gameStatus !== IGameStatus.CREATOR_OPENED,
+    // isStop: true,
     addressIndex: 1,
     others: {
       creator: creator,
       joiner: joiner,
+      // gameId,
     },
   });
 
   const openCardListener = useEvent({
-    contract: hs,
-    filter: hs?.filters?.OpenCard(null, null, null, null, null),
+    contract: mw,
+    filter: mw?.filters?.OpenCard(null, null, null, null, null),
     isStop:
       gameStatus !== IGameStatus.CREATOR_CHOOSED &&
       gameStatus !== IGameStatus.JOINER_CHOOSED,
+    // isStop: true,
     addressIndex: 1,
     others: {
       creator: creator,
       joiner: joiner,
+      // gameId,
     },
   });
 
   const endGameListener = useEvent({
-    contract: hs,
-    filter: hs?.filters?.EndGame(null, null, null),
+    contract: mw,
+    filter: mw?.filters?.EndGame(null, null, null),
     isStop:
       gameStatus !== IGameStatus.CREATOR_OPENED &&
       gameStatus !== IGameStatus.CREATOR_CHOOSED &&
       gameStatus !== IGameStatus.JOINER_CHOOSED &&
       gameStatus !== IGameStatus.JOINER_OPENED &&
       gameStatus !== IGameStatus.DRAWED,
+    // isStop: true,
     addressIndex: 1,
     others: {
       creator: creator,
       joiner: joiner,
+      // gameId,
     },
   });
 
-  const hsId = createGameListener?.creator?.[0]?.toString();
+  const mwId = createGameListener?.creator?.[0]?.toString();
   const creatorShuffleId = createGameListener?.creator?.[1]?.toString();
   const joinerShuffleId = joinGameListener?.joiner?.[1]?.toString();
   const isCreator = address === creator;
@@ -184,10 +198,10 @@ function useGame(creator: string, joiner: string, address: string) {
 
   const getGameInfo = async () => {
     try {
-      const res = await hs?.getGameInfo(hsId);
+      const res = await mw?.getGameInfo(mwId);
       setGameInfo(res);
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
     }
   };
 
@@ -307,8 +321,11 @@ function useGame(creator: string, joiner: string, address: string) {
   useEffect(() => {
     if (creatorShuffleId) {
       setInterval(async () => {
+        // console.log('blockNumber', blockNumber);
         const startBlock = (await provider.getBlockNumber()) - BLOCK_INTERVAL;
+
         const res = await zkShuffle.checkTurn(creatorShuffleId, startBlock);
+        console.log('first deck checkTurn', res);
         if (res !== GameTurn.NOP) {
           setCreatorShuffleStatus(res);
         }
@@ -321,6 +338,7 @@ function useGame(creator: string, joiner: string, address: string) {
       setInterval(async () => {
         const startBlock = (await provider.getBlockNumber()) - BLOCK_INTERVAL;
         const res = await zkShuffle.checkTurn(joinerShuffleId, startBlock);
+        console.log('second deck checkTurn', res);
         if (res !== GameTurn.NOP) {
           setJoinerShuffleStatus(res);
         }
@@ -347,7 +365,7 @@ function useGame(creator: string, joiner: string, address: string) {
   }, [gameStatus]);
 
   return {
-    hsId,
+    mwId,
     creatorShuffleId,
     joinerShuffleId,
     gameStatus,

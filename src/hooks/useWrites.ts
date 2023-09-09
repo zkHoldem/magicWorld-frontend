@@ -6,11 +6,11 @@ import { useContext } from 'react';
 import { ZKShuffleContext } from '../contexts/ZKShuffle';
 
 export const useWrites = () => {
-  const { hs } = useContracts();
+  const { mw } = useContracts();
   const { zkShuffle } = useContext(ZKShuffleContext);
-  const createGameStatus = useWriteContract(hs?.createShuffleForCreator, {});
-  const joinGameStatus = useWriteContract(hs?.createShuffleForJoiner, {});
-  const chooseCardStatus = useWriteContract(hs?.chooseCard, {});
+  const createGameStatus = useWriteContract(mw?.createShuffleForCreator, {});
+  const joinGameStatus = useWriteContract(mw?.createShuffleForJoiner, {});
+  const chooseCardStatus = useWriteContract(mw?.chooseCard, {});
 
   const creatorShuffleJoinStatus = useMutation({
     mutationFn: (shuffleId: number) => {

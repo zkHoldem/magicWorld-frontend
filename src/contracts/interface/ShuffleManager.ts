@@ -67,7 +67,6 @@ export declare namespace BitMaps {
 
 export interface ShuffleManagerInterface extends utils.Interface {
   functions: {
-    "INIT_X1(uint256)": FunctionFragment;
     "INVALID_INDEX()": FunctionFragment;
     "cardConfig(uint256)": FunctionFragment;
     "createShuffleGame(uint8)": FunctionFragment;
@@ -76,9 +75,9 @@ export interface ShuffleManagerInterface extends utils.Interface {
     "decryptVerifier()": FunctionFragment;
     "endGame(uint256)": FunctionFragment;
     "error(uint256,bytes)": FunctionFragment;
-    "gameCardDecryptRecord(uint256,uint256)": FunctionFragment;
-    "gameCardNum(uint256)": FunctionFragment;
     "gameState(uint256)": FunctionFragment;
+    "getDecryptRecord(uint256,uint256)": FunctionFragment;
+    "getNumCards(uint256)": FunctionFragment;
     "getPlayerIdx(uint256,address)": FunctionFragment;
     "largestGameId()": FunctionFragment;
     "openCards(uint256,uint256,uint8,bytes)": FunctionFragment;
@@ -98,7 +97,6 @@ export interface ShuffleManagerInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "INIT_X1"
       | "INVALID_INDEX"
       | "cardConfig"
       | "createShuffleGame"
@@ -107,9 +105,9 @@ export interface ShuffleManagerInterface extends utils.Interface {
       | "decryptVerifier"
       | "endGame"
       | "error"
-      | "gameCardDecryptRecord"
-      | "gameCardNum"
       | "gameState"
+      | "getDecryptRecord"
+      | "getNumCards"
       | "getPlayerIdx"
       | "largestGameId"
       | "openCards"
@@ -127,10 +125,6 @@ export interface ShuffleManagerInterface extends utils.Interface {
       | "transferOwnership"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "INIT_X1",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
   encodeFunctionData(
     functionFragment: "INVALID_INDEX",
     values?: undefined
@@ -169,15 +163,15 @@ export interface ShuffleManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "gameCardDecryptRecord",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "gameCardNum",
+    functionFragment: "gameState",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "gameState",
+    functionFragment: "getDecryptRecord",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getNumCards",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -262,7 +256,6 @@ export interface ShuffleManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "INIT_X1", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "INVALID_INDEX",
     data: BytesLike
@@ -286,15 +279,15 @@ export interface ShuffleManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "endGame", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "error", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "gameCardDecryptRecord",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "gameCardNum",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "gameState", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getDecryptRecord",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getNumCards",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getPlayerIdx",
     data: BytesLike
@@ -342,29 +335,15 @@ export interface ShuffleManagerInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "GameContractCallError(address,bytes)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "PlayerTurn(uint256,uint256,uint8)": EventFragment;
     "Register(uint256,uint256,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "GameContractCallError"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PlayerTurn"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Register"): EventFragment;
 }
-
-export interface GameContractCallErrorEventObject {
-  caller: string;
-  data: string;
-}
-export type GameContractCallErrorEvent = TypedEvent<
-  [string, string],
-  GameContractCallErrorEventObject
->;
-
-export type GameContractCallErrorEventFilter =
-  TypedEventFilter<GameContractCallErrorEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -429,11 +408,6 @@ export interface ShuffleManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    INIT_X1(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     INVALID_INDEX(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     cardConfig(
@@ -472,18 +446,18 @@ export interface ShuffleManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    gameCardDecryptRecord(
+    gameState(
+      gameId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    getDecryptRecord(
       gameId: PromiseOrValue<BigNumberish>,
       cardIdx: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BitMaps.BitMap256StructOutput]>;
 
-    gameCardNum(
-      gameId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    gameState(
+    getNumCards(
       gameId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -596,11 +570,6 @@ export interface ShuffleManager extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  INIT_X1(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   INVALID_INDEX(overrides?: CallOverrides): Promise<BigNumber>;
 
   cardConfig(
@@ -639,18 +608,18 @@ export interface ShuffleManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  gameCardDecryptRecord(
+  gameState(
+    gameId: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getDecryptRecord(
     gameId: PromiseOrValue<BigNumberish>,
     cardIdx: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BitMaps.BitMap256StructOutput>;
 
-  gameCardNum(
-    gameId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  gameState(
+  getNumCards(
     gameId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -760,11 +729,6 @@ export interface ShuffleManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    INIT_X1(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     INVALID_INDEX(overrides?: CallOverrides): Promise<BigNumber>;
 
     cardConfig(
@@ -803,18 +767,18 @@ export interface ShuffleManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    gameCardDecryptRecord(
+    gameState(
+      gameId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getDecryptRecord(
       gameId: PromiseOrValue<BigNumberish>,
       cardIdx: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BitMaps.BitMap256StructOutput>;
 
-    gameCardNum(
-      gameId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    gameState(
+    getNumCards(
       gameId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -926,15 +890,6 @@ export interface ShuffleManager extends BaseContract {
   };
 
   filters: {
-    "GameContractCallError(address,bytes)"(
-      caller?: null,
-      data?: null
-    ): GameContractCallErrorEventFilter;
-    GameContractCallError(
-      caller?: null,
-      data?: null
-    ): GameContractCallErrorEventFilter;
-
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
@@ -945,12 +900,12 @@ export interface ShuffleManager extends BaseContract {
     ): OwnershipTransferredEventFilter;
 
     "PlayerTurn(uint256,uint256,uint8)"(
-      gameId?: null,
+      gameId?: PromiseOrValue<BigNumberish> | null,
       playerIndex?: null,
       state?: null
     ): PlayerTurnEventFilter;
     PlayerTurn(
-      gameId?: null,
+      gameId?: PromiseOrValue<BigNumberish> | null,
       playerIndex?: null,
       state?: null
     ): PlayerTurnEventFilter;
@@ -968,11 +923,6 @@ export interface ShuffleManager extends BaseContract {
   };
 
   estimateGas: {
-    INIT_X1(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     INVALID_INDEX(overrides?: CallOverrides): Promise<BigNumber>;
 
     cardConfig(
@@ -1011,18 +961,18 @@ export interface ShuffleManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    gameCardDecryptRecord(
+    gameState(
+      gameId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getDecryptRecord(
       gameId: PromiseOrValue<BigNumberish>,
       cardIdx: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    gameCardNum(
-      gameId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    gameState(
+    getNumCards(
       gameId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1118,11 +1068,6 @@ export interface ShuffleManager extends BaseContract {
   };
 
   populateTransaction: {
-    INIT_X1(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     INVALID_INDEX(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     cardConfig(
@@ -1161,18 +1106,18 @@ export interface ShuffleManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    gameCardDecryptRecord(
+    gameState(
+      gameId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getDecryptRecord(
       gameId: PromiseOrValue<BigNumberish>,
       cardIdx: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    gameCardNum(
-      gameId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    gameState(
+    getNumCards(
       gameId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

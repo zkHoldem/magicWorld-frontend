@@ -6,7 +6,7 @@ interface Option<Params> {
 }
 
 function useWriteContract<Params = any, Response = any>(
-  method: any,
+  method: ((...args: Params[]) => Promise<Response>) | any,
   { args = [], wait = true }: Option<Params>
 ) {
   const [result, setResult] = useState<Response>();

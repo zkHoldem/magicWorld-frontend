@@ -1,25 +1,25 @@
 import { Chain } from "wagmi";
 
-export const HarmanyTestnet: Chain = {
-  id: 1666700000,
-  name: "Harmony Testnet",
-  network: "harmony",
+export const khartes: Chain = {
+  id: 145632,
+  name: "khartes",
+  network: "khartes",
   nativeCurrency: {
-    name: "ONE",
-    symbol: "ONE",
+    name: "ETH",
+    symbol: "ETH",
     decimals: 18,
   },
   rpcUrls: {
     public: {
-      http: ["https://api.s0.b.hmny.io"],
+      http: ["https://khartes.calderachain.xyz/http"],
     },
     default: {
-      http: ["https://api.s0.b.hmny.io"],
+      http: ["https://khartes.calderachain.xyz/http"],
     },
   },
   blockExplorers: {
-    etherscan: { name: "Harmony", url: "https://explorer.pops.one" },
-    default: { name: "Harmony", url: "https://explorer.pops.one" },
+    etherscan: { name: "khartes", url: "https://khartes.calderaexplorer.xyz/" },
+    default: { name: "khartes", url: "https://khartes.calderaexplorer.xyz/" },
   },
 
   testnet: true,
@@ -56,6 +56,6 @@ export const mantaTest: Chain = {
 };
 
 export const supChains = {
-  HarmanyTestnet,
+  khartes,
   mantaTest,
 };

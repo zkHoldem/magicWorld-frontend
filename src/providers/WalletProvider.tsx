@@ -1,23 +1,14 @@
 import { PropsWithChildren } from "react";
 import { publicProvider } from "wagmi/providers/public";
 import "@rainbow-me/rainbowkit/styles.css";
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { configureChains, createClient, WagmiConfig } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
-import { mantaTest } from "../config/chains";
-// import { arbitrumGoerli } from '../config/chains';
+import { mantaTest, khartes } from "../config/chains";
 
-export const chainsParams = [mantaTest];
+export const chainsParams = [mantaTest, khartes];
 
 const { chains, provider } = configureChains(chainsParams, [
-  // jsonRpcProvider({
-  //   rpc: () => ({
-  //     http: `https://manta-testnet.calderachain.xyz/http`,
-  //   }),
-  // }),
-  // alchemyProvider({ apiKey: '3G7hlGqp_3AyP4XspL_vMa5nJTpwKIxT' }),
-  // infuraProvider({ apiKey: 'b45700eac1464695b569b4151c36b672' }),
   publicProvider(),
 ]);
 
